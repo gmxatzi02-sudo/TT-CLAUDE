@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+*.tsbuildinfo
+
+# Environment & secrets
+.env
+.env.*
+evolution.env
+*.pem
+*.key
+
+# Database (never containerize local dev DB)
+data/*.db
+data/*.db-*
+
+# Git & OS
+.git/
+.gitignore
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+
+# Test & temp
+coverage/
+.cache/
+tmp/
+temp/

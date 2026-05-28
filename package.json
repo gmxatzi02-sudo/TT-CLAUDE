@@ -1,0 +1,32 @@
+{
+  "name": "taxi-ai-translation-bridge",
+  "version": "0.1.0",
+  "description": "Taxi AI Translation Bridge (Track A - Uncle Validation) - Real-time WhatsApp translation for Greek taxi drivers and tourists",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "simulate": "tsx tests/simulate.ts",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist data/metrics.db"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "better-sqlite3": "^11.1.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "openai": "^4.52.7"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.10",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.10",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

@@ -1,0 +1,92 @@
+# ===================================================================
+# Evolution API v2 + PostgreSQL + Redis (for Taxi AI Translation Bridge)
+# ===================================================================
+#
+# This compose file runs ONLY the Evolution API stack locally.
+# Your Taxi Translation Bridge runs on the host machine (`npm run dev`).
+#
+# Quick start:
+#   1. cp evolution.env.example evolution.env
+#   2. Edit evolution.env (especially passwords and GLOBAL_API_KEY)
+#   3. docker compose up -d
+#   4. Check logs: docker compose logs -f evolution-api
+#   5. Copy the generated API key from logs into your main .env (EVOLUTION_API_KEY)
+#
+# After first start, create a WhatsApp instance in the Evolution Manager (port 3001).
+# ===================================================================
+
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: evolution-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: evolution
+      POSTGRES_USER: evolution
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-taxi-bridge-db-2026}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evolution"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - evolution-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: evolution-redis
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - evolution-net
+
+  evolution-api:
+    image: evoapicloud/evolution-api:latest
+    container_name: evolution-api
+    restart: unless-stopped
+    ports:
+      - "7070:8080"   # Changed from 8080 → 7070 to avoid conflict with your old instance
+    env_file:
+      - evolution.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      # Persist WhatsApp session data (very important)
+      - evolution_instances:/evolution/instances
+    networks:
+      - evolution-net
+
+  # Optional: Web-based manager UI for creating instances and viewing QR codes
+  evolution-manager:
+    image: evoapicloud/evolution-manager:latest
+    container_name: evolution-manager
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    depends_on:
+      - evolution-api
+    networks:
+      - evolution-net
+
+volumes:
+  postgres_data:
+  redis_data:
+  evolution_instances:
+
+networks:
+  evolution-net:
+    driver: bridge
